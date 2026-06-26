@@ -13,13 +13,13 @@ import (
 
 // State is the per-flow record kept between /v1/pair/start and /v1/pair/callback.
 type State struct {
-	AppID         string
-	RedirectURI   string
-	DeviceLabel   string
-	Mode          string // "redirect" or "popup"
-	PKCEVerifier  string
-	Nonce         string
-	CreatedAt     time.Time
+	AppID        string
+	RedirectURI  string
+	DeviceLabel  string
+	Mode         string // "redirect" or "popup"
+	PKCEVerifier string
+	Nonce        string
+	CreatedAt    time.Time
 }
 
 // Cache is an in-memory state store with TTL eviction. Capable of carrying

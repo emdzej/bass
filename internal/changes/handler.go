@@ -51,7 +51,7 @@ func (h *Handler) serve(w http.ResponseWriter, r *http.Request) {
 		// Accept writes its own response; nothing to do.
 		return
 	}
-	defer conn.CloseNow()
+	defer func() { _ = conn.CloseNow() }()
 
 	// Send channel — buffered=1 acts as a "wake-up needed" flag. If a write
 	// is already pending, new Publish calls noop (we don't care about the

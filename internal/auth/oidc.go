@@ -60,10 +60,10 @@ func NewVerifier(ctx context.Context, issuer, audience string) (*Verifier, error
 	}, nil
 }
 
-func (v *Verifier) Issuer() string             { return v.issuer }
-func (v *Verifier) Audience() string           { return v.audience }
-func (v *Verifier) Endpoints() IdPEndpoints    { return v.endpoints }
-func (v *Verifier) Provider() *oidc.Provider   { return v.provider }
+func (v *Verifier) Issuer() string           { return v.issuer }
+func (v *Verifier) Audience() string         { return v.audience }
+func (v *Verifier) Endpoints() IdPEndpoints  { return v.endpoints }
+func (v *Verifier) Provider() *oidc.Provider { return v.provider }
 
 // OAuth2Config returns an oauth2.Config suitable for the authorization code
 // exchange during pairing. The caller provides the redirect URI and client

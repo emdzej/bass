@@ -164,9 +164,9 @@ type scanner interface {
 
 func scanApp(s scanner) (*App, error) {
 	var (
-		a                                App
-		origins, redirects, allowlist    string
-		createdUnix, updatedUnix         int64
+		a                             App
+		origins, redirects, allowlist string
+		createdUnix, updatedUnix      int64
 	)
 	if err := s.Scan(&a.ID, &a.Name, &origins, &redirects, &allowlist, &createdUnix, &updatedUnix); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

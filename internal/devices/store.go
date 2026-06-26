@@ -202,10 +202,10 @@ type scanner interface {
 
 func scanDevice(s scanner) (*Device, error) {
 	var (
-		d                              Device
-		tokenExp, refreshExp, created  int64
-		lastSeen                       int64
-		revokedAt                      sql.NullInt64
+		d                             Device
+		tokenExp, refreshExp, created int64
+		lastSeen                      int64
+		revokedAt                     sql.NullInt64
 	)
 	if err := s.Scan(&d.ID, &d.UserSub, &d.AppID, &d.Label,
 		&tokenExp, &refreshExp, &created, &lastSeen, &revokedAt); err != nil {

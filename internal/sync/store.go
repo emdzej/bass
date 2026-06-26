@@ -12,8 +12,8 @@ import (
 // Item is a single sync entry.
 type Item struct {
 	Key        string `json:"key"`
-	Value      []byte `json:"-"`              // raw bytes; encoded as base64 in the JSON envelope
-	ValueB64   string `json:"value"`          // populated for wire format
+	Value      []byte `json:"-"`     // raw bytes; encoded as base64 in the JSON envelope
+	ValueB64   string `json:"value"` // populated for wire format
 	PayloadVer int    `json:"payload_ver"`
 	Version    int64  `json:"version"`
 	Deleted    bool   `json:"deleted"`

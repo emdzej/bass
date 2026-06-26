@@ -10,10 +10,10 @@ import (
 
 // Config is the JSON envelope returned to clients.
 type Config struct {
-	Issuer    string            `json:"issuer,omitempty"`
-	Scopes    Scopes            `json:"scopes"`
-	Endpoints Endpoints         `json:"endpoints"`
-	Limits    Limits            `json:"limits"`
+	Issuer    string             `json:"issuer,omitempty"`
+	Scopes    Scopes             `json:"scopes"`
+	Endpoints Endpoints          `json:"endpoints"`
+	Limits    Limits             `json:"limits"`
 	IdP       *auth.IdPEndpoints `json:"idp_endpoints,omitempty"`
 }
 
@@ -23,12 +23,12 @@ type Scopes struct {
 }
 
 type Endpoints struct {
-	PairStart     string `json:"pair_start"`
-	PairCallback  string `json:"pair_callback"`
-	Sync          string `json:"sync"`
-	ChangesWS     string `json:"changes_ws"`
-	TokenRefresh  string `json:"token_refresh"`
-	Devices       string `json:"devices"`
+	PairStart    string `json:"pair_start"`
+	PairCallback string `json:"pair_callback"`
+	Sync         string `json:"sync"`
+	ChangesWS    string `json:"changes_ws"`
+	TokenRefresh string `json:"token_refresh"`
+	Devices      string `json:"devices"`
 }
 
 type Limits struct {
