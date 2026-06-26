@@ -1,0 +1,16 @@
+meta {
+  name: GET .well-known/bass-config
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/.well-known/bass-config
+  body: none
+  auth: none
+}
+
+docs {
+  Public discovery — returns issuer, scope names, endpoint URLs, and limits.
+  No auth required.
+}

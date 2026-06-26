@@ -1,0 +1,44 @@
+# Go
+/bass
+/bin/
+*.test
+*.out
+coverage.*
+
+# Node / pnpm / turbo
+node_modules/
+.pnpm-store/
+.turbo/
+dist/
+build/
+.svelte-kit/
+.vite/
+
+# Local SQLite databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Local dev overrides
+docker-compose.override.yml

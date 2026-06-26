@@ -1,0 +1,21 @@
+meta {
+  name: PATCH /v1/admin/apps/:id
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/v1/admin/apps/{{appId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "key_allowlist": ["demo-*", "wdsx-*"]
+  }
+}

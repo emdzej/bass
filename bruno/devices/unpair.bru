@@ -1,0 +1,15 @@
+meta {
+  name: DELETE /v1/devices/:id
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrl}}/v1/devices/{{deviceId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{syncToken}}
+}

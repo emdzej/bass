@@ -1,0 +1,22 @@
+meta {
+  name: GET /v1/pair/start (redirect)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/pair/start?app_id={{appId}}&redirect_uri=http://localhost:5173/sync-cb&device_label=Bruno
+  body: none
+  auth: none
+}
+
+params:query {
+  app_id: {{appId}}
+  redirect_uri: http://localhost:5173/sync-cb
+  device_label: Bruno
+}
+
+docs {
+  Initiate pairing. With --no-auth, the service short-circuits straight back to the redirect_uri
+  with sync_token in the URL fragment. With real OIDC, the response is a 302 to the IdP authorize URL.
+}

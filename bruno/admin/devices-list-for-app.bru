@@ -1,0 +1,15 @@
+meta {
+  name: GET /v1/admin/apps/:id/devices
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/admin/apps/{{appId}}/devices
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

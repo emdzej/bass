@@ -1,0 +1,29 @@
+meta {
+  name: POST /v1/admin/apps
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/admin/apps
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "id": "{{appId}}",
+    "name": "bass demo",
+    "origins": ["http://localhost:5173"],
+    "redirect_uris": ["http://localhost:5173/sync-cb"],
+    "key_allowlist": ["demo-*"]
+  }
+}
+
+docs {
+  Register a new app. Requires bass.admin scope (or no auth when bass is started with --no-auth).
+}

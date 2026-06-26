@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1.7
+
+FROM node:20-alpine AS build
+ENV PNPM_HOME=/pnpm
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+WORKDIR /src
+
+# Bring in the workspace metadata first to maximise layer cache hits.
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/client/package.json ./packages/client/
+COPY packages/svelte/package.json ./packages/svelte/
+COPY apps/demo/package.json ./apps/demo/
+RUN pnpm install --frozen-lockfile
+
+# Now the sources.
+COPY packages/client ./packages/client
+COPY packages/svelte ./packages/svelte
+COPY apps/demo ./apps/demo
+COPY turbo.json ./
+
+ARG VITE_BASS_URL=http://localhost:8080
+ARG VITE_APP_ID=bass-demo
+ENV VITE_BASS_URL=${VITE_BASS_URL}
+ENV VITE_APP_ID=${VITE_APP_ID}
+RUN pnpm --filter @emdzej/bass-client build \
+ && pnpm --filter @emdzej/bass-svelte build \
+ && pnpm --filter @emdzej/bass-demo build
+
+FROM nginx:alpine
+COPY --from=build /src/apps/demo/build /usr/share/nginx/html
+# SPA fallback: all routes serve index.html.
+RUN printf 'server {\n  listen 80;\n  root /usr/share/nginx/html;\n  index index.html;\n  location / { try_files $uri $uri/ /index.html; }\n}\n' \
+    > /etc/nginx/conf.d/default.conf
+EXPOSE 80

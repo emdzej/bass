@@ -1,0 +1,15 @@
+meta {
+  name: DELETE /v1/admin/apps/:id
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/v1/admin/apps/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

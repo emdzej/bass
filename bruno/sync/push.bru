@@ -1,0 +1,34 @@
+meta {
+  name: POST /v1/sync (push)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/sync
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{syncToken}}
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "key": "demo-theme",
+        "value": "ZGFyaw==",
+        "payload_ver": 1,
+        "base_version": 0,
+        "deleted": false
+      }
+    ]
+  }
+}
+
+docs {
+  Push writes. Values are base64-encoded raw bytes. "ZGFyaw==" decodes to "dark".
+  Server returns per-item accepted | accepted_overwrite, plus the new cursor.
+}

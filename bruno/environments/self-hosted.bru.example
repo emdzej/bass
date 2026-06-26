@@ -1,0 +1,9 @@
+vars {
+  baseUrl: https://bass.example.com
+  wsBaseUrl: wss://bass.example.com
+  appId:
+  adminToken:
+  syncToken:
+  refreshToken:
+  deviceId:
+}

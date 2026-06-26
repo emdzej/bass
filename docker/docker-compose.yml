@@ -1,0 +1,43 @@
+services:
+  dex:
+    image: ghcr.io/dexidp/dex:v2.41.1
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    volumes:
+      - ./dex-config.yaml:/etc/dex/config.yaml:ro
+    ports:
+      - "5556:5556"
+
+  bass:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      BASS_ADDR: ":8080"
+      BASS_DB_PATH: "/data/bass.db"
+      BASS_PUBLIC_BASE_URL: "http://localhost:8080"
+      BASS_OIDC_ISSUER: "http://dex:5556/dex"
+      BASS_OIDC_AUDIENCE: "bass"
+      BASS_OIDC_CLIENT_ID: "bass"
+      BASS_OIDC_CLIENT_SECRET: "bass-dev-secret"
+      BASS_ALLOWED_ORIGINS: "localhost:5173,localhost:4173"
+    volumes:
+      - bass-data:/data
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dex
+
+  demo:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.demo
+      args:
+        VITE_BASS_URL: "http://localhost:8080"
+        VITE_APP_ID: "bass-demo"
+    ports:
+      - "5173:80"
+    depends_on:
+      - bass
+
+volumes:
+  bass-data:

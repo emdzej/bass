@@ -1,0 +1,38 @@
+{
+  "name": "@emdzej/bass-svelte",
+  "version": "0.0.0",
+  "description": "Svelte stores + Svelte 5 runes wrappers over @emdzej/bass-client",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "@emdzej/bass-client": "workspace:*",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@emdzej/bass-client": "workspace:*",
+    "svelte": "^5.0.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

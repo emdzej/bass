@@ -1,0 +1,15 @@
+meta {
+  name: GET /v1/devices
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/devices
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{syncToken}}
+}

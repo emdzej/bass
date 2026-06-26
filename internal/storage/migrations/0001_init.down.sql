@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS version_counters;
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS devices;
+DROP TABLE IF EXISTS apps;

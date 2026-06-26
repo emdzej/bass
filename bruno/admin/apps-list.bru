@@ -1,0 +1,15 @@
+meta {
+  name: GET /v1/admin/apps
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/admin/apps
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
