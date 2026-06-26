@@ -7,8 +7,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
@@ -32,9 +34,11 @@ type IdPEndpoints struct {
 	UserInfoEndpoint      string `json:"userinfo_endpoint,omitempty"`
 }
 
-// NewVerifier autodiscovers OIDC config from the issuer URL.
+// NewVerifier autodiscovers OIDC config from the issuer URL. The discovery
+// request is retried with exponential backoff (up to ~30s) so the service
+// can start alongside its IdP in a docker-compose stack without races.
 func NewVerifier(ctx context.Context, issuer, audience string) (*Verifier, error) {
-	provider, err := oidc.NewProvider(ctx, issuer)
+	provider, err := discoverWithRetry(ctx, issuer)
 	if err != nil {
 		return nil, fmt.Errorf("oidc discovery: %w", err)
 	}
@@ -58,6 +62,36 @@ func NewVerifier(ctx context.Context, issuer, audience string) (*Verifier, error
 			UserInfoEndpoint:      raw.UserInfoEndpoint,
 		},
 	}, nil
+}
+
+// discoverWithRetry calls oidc.NewProvider until it succeeds, the context
+// is cancelled, or ~30s elapses. Each failure is logged at WARN.
+func discoverWithRetry(ctx context.Context, issuer string) (*oidc.Provider, error) {
+	const maxWait = 30 * time.Second
+	deadline := time.Now().Add(maxWait)
+	backoff := time.Second
+	for {
+		provider, err := oidc.NewProvider(ctx, issuer)
+		if err == nil {
+			return provider, nil
+		}
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		if time.Now().After(deadline) {
+			return nil, err
+		}
+		slog.Warn("oidc discovery failed, retrying",
+			"issuer", issuer, "err", err, "backoff", backoff)
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(backoff):
+		}
+		if backoff < 5*time.Second {
+			backoff *= 2
+		}
+	}
 }
 
 func (v *Verifier) Issuer() string           { return v.issuer }

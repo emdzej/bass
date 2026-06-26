@@ -11,6 +11,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    restart: unless-stopped
     environment:
       BASS_ADDR: ":8080"
       BASS_DB_PATH: "/data/bass.db"
