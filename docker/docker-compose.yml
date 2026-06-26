@@ -1,12 +1,4 @@
 services:
-  dex:
-    image: ghcr.io/dexidp/dex:v2.41.1
-    command: ["dex", "serve", "/etc/dex/config.yaml"]
-    volumes:
-      - ./dex-config.yaml:/etc/dex/config.yaml:ro
-    ports:
-      - "5556:5556"
-
   bass:
     build:
       context: ..
@@ -16,17 +8,15 @@ services:
       BASS_ADDR: ":8080"
       BASS_DB_PATH: "/data/bass.db"
       BASS_PUBLIC_BASE_URL: "http://localhost:8080"
-      BASS_OIDC_ISSUER: "http://dex:5556/dex"
-      BASS_OIDC_AUDIENCE: "bass"
-      BASS_OIDC_CLIENT_ID: "bass"
-      BASS_OIDC_CLIENT_SECRET: "bass-dev-secret"
       BASS_ALLOWED_ORIGINS: "localhost:5173,localhost:4173"
+      # The demo runs without OIDC so the focus stays on the sync mechanism.
+      # For a real deployment, drop --no-auth and set BASS_OIDC_ISSUER /
+      # BASS_OIDC_AUDIENCE / BASS_OIDC_CLIENT_ID / BASS_OIDC_CLIENT_SECRET.
+      BASS_NO_AUTH: "true"
     volumes:
       - bass-data:/data
     ports:
       - "8080:8080"
-    depends_on:
-      - dex
 
   demo:
     build:
@@ -37,6 +27,31 @@ services:
         VITE_APP_ID: "bass-demo"
     ports:
       - "5173:80"
+    depends_on:
+      - bass
+
+  # One-shot setup container: registers the demo app with bass. Since bass
+  # runs in --no-auth mode, the admin endpoint accepts requests without a
+  # token. Invoke with:
+  #
+  #   docker compose -f docker/docker-compose.yml run --rm setup
+  #
+  setup:
+    image: alpine:3.20
+    profiles: ["setup"]
+    environment:
+      BASS_URL: "http://bass:8080"
+      APP_ID: "bass-demo"
+      APP_ORIGIN: "http://localhost:5173"
+      APP_REDIRECT: "http://localhost:5173/sync-cb"
+    volumes:
+      - ../apps/demo/scripts:/scripts:ro
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        set -e
+        apk add --no-cache curl python3 bash >/dev/null
+        exec bash /scripts/setup.sh
     depends_on:
       - bass
 

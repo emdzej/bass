@@ -656,7 +656,7 @@ bass/
 │   └── demo/                 # @emdzej/bass-demo (Svelte)
 ├── docker/                   # §12.8
 │   ├── Dockerfile            # multi-stage build for the service
-│   └── docker-compose.yml    # bass + dex (IdP) + demo
+│   └── docker-compose.yml    # bass (--no-auth) + demo + setup
 ├── .github/workflows/        # CI + release (§12.9)
 │   ├── ci.yml
 │   └── release.yml
@@ -944,53 +944,52 @@ ENTRYPOINT ["/bass", "serve"]
 
 `modernc.org/sqlite` keeps `CGO_ENABLED=0` so the binary is fully static and the distroless image works.
 
-**`docker/docker-compose.yml`** spins up three services for full local end-to-end:
+**`docker/docker-compose.yml`** runs bass + demo + a one-shot setup container. The demo deliberately runs **without an IdP** — `BASS_NO_AUTH=true` short-circuits the OIDC dance so the demo focuses on the sync mechanism rather than auth plumbing. Real deployments drop the `BASS_NO_AUTH` env and add the OIDC vars.
 
 ```yaml
 services:
-  dex:
-    image: ghcr.io/dexidp/dex:v2.40.0
-    command: ["dex", "serve", "/etc/dex/config.yaml"]
-    volumes:
-      - ./dev/dex-config.yaml:/etc/dex/config.yaml:ro
-    ports: ["5556:5556"]
-
   bass:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    build: { context: .., dockerfile: docker/Dockerfile }
+    restart: unless-stopped
     environment:
-      BASS_ADDR: ":8080"
+      BASS_NO_AUTH: "true"
       BASS_DB_PATH: "/data/bass.db"
-      BASS_OIDC_ISSUER: "http://dex:5556/dex"
-      BASS_OIDC_AUDIENCE: "bass"
-      BASS_OIDC_CLIENT_ID: "bass"
-      BASS_OIDC_CLIENT_SECRET: "bass-dev-secret"
+      BASS_PUBLIC_BASE_URL: "http://localhost:8080"
+      BASS_ALLOWED_ORIGINS: "localhost:5173,localhost:4173"
     volumes: ["bass-data:/data"]
     ports: ["8080:8080"]
-    depends_on: [dex]
 
   demo:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.demo    # static build served by nginx:alpine
-    environment:
-      VITE_BASS_URL: "http://localhost:8080"
-      VITE_APP_ID: "bass-demo"
+      dockerfile: docker/Dockerfile.demo
+      args: { VITE_BASS_URL: "http://localhost:8080", VITE_APP_ID: "bass-demo" }
     ports: ["5173:80"]
+    depends_on: [bass]
+
+  # One-shot — registers the demo app at bass /v1/admin/apps. The admin
+  # endpoint accepts unauthenticated requests in no-auth mode.
+  setup:
+    image: alpine:3.20
+    profiles: ["setup"]
+    volumes: ["../apps/demo/scripts:/scripts:ro"]
+    entrypoint: ["sh", "-c"]
+    command: ["apk add --no-cache curl python3 bash && bash /scripts/setup.sh"]
+    environment:
+      BASS_URL: "http://bass:8080"
+      APP_ID: "bass-demo"
+    depends_on: [bass]
 
 volumes:
   bass-data:
 ```
 
-**Why dex** (not Keycloak): single static binary, ~20 MB image, file-based config — much faster to spin up for dev than Keycloak. Acts as a stand-in for whatever real IdP a self-hoster ends up running.
-
-**`dev/dex-config.yaml`** ships a single static user (`demo@example.com` / `demo`) and the `bass` OIDC client preconfigured with redirect URI `http://localhost:8080/v1/pair/callback`. Enough for click-through local testing; not for production.
+**Why no IdP in the demo:** demos pay for moving parts they don't earn. The point of the bass demo is "look, your settings sync across devices" — OIDC adds complexity without illustrating anything beyond what bass's own docs already explain. For a deployment scenario, see §4 (threat model) and §6 (pairing flow) — production stacks plug in any standard OIDC IdP (Keycloak, Authelia, Auth0, Entra, etc.).
 
 **Local dev without Docker:**
 - `go run ./cmd/bass serve --no-auth` — runs bass with OIDC bypassed; client lib gets a "mock paired" state.
 - `pnpm dev` — runs the demo via Vite dev server at `http://localhost:5173`.
-- Useful for fast iteration on client lib and demo UI without round-tripping through dex.
+- `./apps/demo/scripts/setup.sh` — registers the demo app against the local bass.
 
 ### 12.9 Continuous integration (GitHub Actions)
 

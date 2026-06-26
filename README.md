@@ -55,7 +55,7 @@ within seconds — without changing the rest of the app.
                                   ┌───────────────────────┐
                                   │  Your OIDC provider   │
                                   │  (Keycloak, Authelia, │
-                                  │   Auth0, Entra, dex…) │
+                                  │   Auth0, Entra, …)    │
                                   └───────────────────────┘
 ```
 
@@ -76,18 +76,25 @@ This brings up three services:
 
 | Service | URL | Purpose |
 |---|---|---|
-| `dex` | http://localhost:5556/dex | Local OIDC IdP (single user: `demo@example.com` / `demo`) |
-| `bass` | http://localhost:8080 | The sync service |
+| `bass` | http://localhost:8080 | The sync service (runs in `--no-auth` mode for the demo) |
 | `demo` | http://localhost:5173 | The bass demo Svelte app served by nginx |
+
+The demo runs bass with OIDC disabled (`BASS_NO_AUTH=true`) so the focus stays
+on the sync mechanism rather than IdP plumbing. For a real deployment you
+swap that out for your own OIDC provider — see [For operators](#for-operators).
 
 Then:
 
-1. Open http://localhost:5173 — the demo app.
-2. Click **Pair (redirect)** or **Pair (popup)**. You'll be sent to dex, log in
-   as `demo@example.com` / `demo`, get bounced back.
-3. Open `/settings`, change values, open the page in a second tab or browser —
+1. Register the demo app (one-shot):
+   ```sh
+   docker compose -f docker/docker-compose.yml run --rm setup
+   ```
+2. Open http://localhost:5173 — the demo app.
+3. Click **Pair (redirect)** or **Pair (popup)**. In `--no-auth` mode pairing
+   short-circuits past any IdP and mints tokens for a synthetic `dev-user`.
+4. Open `/settings`, change values, open the page in a second tab or browser —
    watch them converge.
-4. Open `/inspector` to see the outbox, cursor, and token state.
+5. Open `/inspector` to see the outbox, cursor, and token state.
 
 ### Running locally without Docker
 
@@ -102,7 +109,7 @@ pnpm dev   # http://localhost:5173
 
 In `--no-auth` mode the pairing flow short-circuits past the IdP and mints a
 device for a synthetic `dev-user` — useful for client-lib work without
-standing up dex.
+standing up an IdP. The bundled docker-compose stack uses this mode by default.
 
 ## For app developers
 
@@ -328,7 +335,7 @@ internal/                Go service internals — apps, devices, pairing,
 packages/client/         @emdzej/bass-client (TypeScript)
 packages/svelte/         @emdzej/bass-svelte (TypeScript)
 apps/demo/               SvelteKit demo app
-docker/                  Dockerfile + docker-compose + dex config
+docker/                  Dockerfile + docker-compose for the no-auth demo
 bruno/                   API testing collection
 .github/workflows/       CI (js + go + docker) + release (npm + GHCR)
 docs/                    Long-form docs (API.md)
