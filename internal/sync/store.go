@@ -112,7 +112,7 @@ func (s *Store) Apply(ctx context.Context, userSub, appID, deviceID string, inte
 	if err != nil {
 		return nil, 0, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	results := make([]WriteResult, 0, len(intents))
 	now := time.Now().UTC().Unix()

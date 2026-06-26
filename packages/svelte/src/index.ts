@@ -1,5 +1,5 @@
-import { writable, type Readable, type Writable } from 'svelte/store';
 import type { AuthState, BassClient } from '@emdzej/bass-client';
+import { type Readable, type Writable, writable } from 'svelte/store';
 
 /**
  * bassWritable returns a Svelte writable store backed by a bass-synced key.

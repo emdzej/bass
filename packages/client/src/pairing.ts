@@ -1,16 +1,12 @@
-import type { PairOptions } from './types.js';
 import type { TokenStore } from './storage/tokens.js';
+import type { PairOptions } from './types.js';
 
 const POSTMSG_TAG = 'bass:pair-tokens';
 
 /**
  * Build the bass /v1/pair/start URL with the given app + redirect.
  */
-export function buildPairStartUrl(
-  serviceUrl: string,
-  appId: string,
-  opts: PairOptions,
-): string {
+export function buildPairStartUrl(serviceUrl: string, appId: string, opts: PairOptions): string {
   const url = new URL(`${serviceUrl}/v1/pair/start`);
   url.searchParams.set('app_id', appId);
   url.searchParams.set('redirect_uri', opts.redirectUri);
@@ -36,11 +32,7 @@ export async function pair(
   const mode = opts.mode ?? 'redirect';
 
   if (mode === 'popup') {
-    const popup = window.open(
-      url,
-      'bass-pair',
-      'popup=yes,width=520,height=720,scrollbars=yes',
-    );
+    const popup = window.open(url, 'bass-pair', 'popup=yes,width=520,height=720,scrollbars=yes');
     if (!popup) {
       // popup blocked — fall back to redirect
       window.location.assign(url);

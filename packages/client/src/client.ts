@@ -1,19 +1,19 @@
+import { Outbox } from './outbox.js';
+import { completePairingFromUrl, pair } from './pairing.js';
+import { attachProxy, compileKeyMatcher, decodeValue, encodeValue } from './proxy.js';
+import { CursorStore } from './storage/cursor.js';
+import { TokenStore } from './storage/tokens.js';
+import { type PushItem, RestTransport } from './transport/rest.js';
+import { WSChannel } from './transport/ws.js';
 import type {
   AuthState,
   BassClientOptions,
+  BassDevice,
   DiscoveryConfig,
   HydrateOptions,
   HydrateResult,
   PairOptions,
-  BassDevice,
 } from './types.js';
-import { TokenStore } from './storage/tokens.js';
-import { CursorStore } from './storage/cursor.js';
-import { Outbox } from './outbox.js';
-import { RestTransport, type PushItem } from './transport/rest.js';
-import { WSChannel } from './transport/ws.js';
-import { attachProxy, compileKeyMatcher, decodeValue, encodeValue } from './proxy.js';
-import { pair, completePairingFromUrl } from './pairing.js';
 
 type Listener<T> = (value: T) => void;
 

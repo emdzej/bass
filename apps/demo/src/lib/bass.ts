@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { createBassClient, type BassClient } from '@emdzej/bass-client';
+import { type BassClient, createBassClient } from '@emdzej/bass-client';
 
 const SERVICE_URL =
   (import.meta.env.VITE_BASS_URL as string | undefined) ?? 'http://localhost:8080';

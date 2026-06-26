@@ -1,5 +1,5 @@
-import type { DiscoveryConfig, PullResponse, PushResponse, BassDevice } from '../types.js';
 import type { TokenStore } from '../storage/tokens.js';
+import type { BassDevice, DiscoveryConfig, PullResponse, PushResponse } from '../types.js';
 
 export class BassRestError extends Error {
   status: number;
