@@ -1,9 +1,25 @@
 vars {
   baseUrl: https://bass.example.com
   wsBaseUrl: wss://bass.example.com
-  appId:
-  adminToken:
+  appId: my-app
+
+  # OAuth2 — Keycloak / Authentik / etc. The admin folder is wired to fetch
+  # a token automatically using these values (see `admin/folder.bru`).
+  oidcAuthorizationUrl: https://auth.example.com/realms/my-realm/protocol/openid-connect/auth
+  oidcTokenUrl: https://auth.example.com/realms/my-realm/protocol/openid-connect/token
+  oidcClientId: bass
+  ~oidcClientSecret:                 # paste locally; do not commit
+  oidcCallbackUrl: http://localhost:3000/callback
+  oidcAdminScope: openid bass.admin
+  oidcUserScope: openid bass.sync
+
+  # Sync tokens are opaque bass-minted tokens (not OIDC). Obtain via the
+  # pairing flow in the demo app, then paste here.
   syncToken:
   refreshToken:
   deviceId:
 }
+
+# Copy this file to `self-hosted.bru` and fill in your own values.
+# Keycloak setup: register `{{oidcCallbackUrl}}` as a Valid Redirect URI on
+# the `bass` client so Bruno's OAuth2 flow can capture the auth code.

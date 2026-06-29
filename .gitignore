@@ -42,3 +42,7 @@ pnpm-debug.log*
 
 # Local dev overrides
 docker-compose.override.yml
+
+# Bruno: env files that carry real secrets — committed only as `.example`
+bruno/environments/solvely.bru
+bruno/environments/self-hosted.bru

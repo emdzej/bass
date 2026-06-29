@@ -1,0 +1,37 @@
+meta {
+  name: admin
+  seq: 1
+}
+
+auth {
+  mode: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  authorization_url: {{oidcAuthorizationUrl}}
+  access_token_url: {{oidcTokenUrl}}
+  callback_url: {{oidcCallbackUrl}}
+  client_id: {{oidcClientId}}
+  client_secret: {{oidcClientSecret}}
+  scope: {{oidcAdminScope}}
+  state: bass-admin
+  pkce: true
+  credentials_placement: basic_auth_header
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: true
+}
+
+docs {
+  All requests in this folder authenticate via OAuth2 authorization-code
+  flow against the IdP configured in the current environment. Bruno opens
+  a browser popup the first time, caches the access token, and refreshes
+  automatically.
+
+  The IdP must include the `bass.admin` scope on tokens for the configured
+  client. For local dev with `BASS_NO_AUTH=true`, the auth round-trip is
+  unnecessary — switch requests to `auth: none` if the OIDC vars aren't
+  set.
+}

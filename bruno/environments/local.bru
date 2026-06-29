@@ -2,8 +2,20 @@ vars {
   baseUrl: http://localhost:8080
   wsBaseUrl: ws://localhost:8080
   appId: bass-demo
-  adminToken:
+  ~adminToken:
   syncToken:
   refreshToken:
   deviceId:
+  ~oidcAuthorizationUrl:
+  ~oidcTokenUrl:
+  ~oidcClientId: bass
+  ~oidcClientSecret:
+  ~oidcCallbackUrl: http://localhost:3000/callback
+  ~oidcAdminScope: openid bass.admin
+  ~oidcUserScope: openid bass.sync
 }
+
+# Local docker-compose stack: bass runs with BASS_NO_AUTH=true, so the admin
+# endpoints accept requests without a real token. The OAuth2 vars above
+# (prefixed with `~`, Bruno-disabled by default) are placeholders — enable
+# them only if you also run a real IdP locally.

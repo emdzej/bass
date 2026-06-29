@@ -1,0 +1,23 @@
+vars {
+  baseUrl: https://bass.solvely.pl
+  wsBaseUrl: wss://bass.solvely.pl
+  appId: bass-demo
+
+  oidcAuthorizationUrl: https://auth.solvely.pl/realms/solvely/protocol/openid-connect/auth
+  oidcTokenUrl: https://auth.solvely.pl/realms/solvely/protocol/openid-connect/token
+  oidcClientId: bass
+  ~oidcClientSecret:                 # paste locally; do not commit
+  oidcCallbackUrl: http://localhost:3000/callback
+  oidcAdminScope: openid bass.admin
+  oidcUserScope: openid bass.sync
+
+  syncToken:
+  refreshToken:
+  deviceId:
+}
+
+# For the deployed bass at https://bass.solvely.pl.
+# Copy to `solvely.bru` (gitignored) and fill in the client secret locally.
+#
+# In Keycloak's `solvely` realm → `bass` client → "Valid redirect URIs",
+# add: http://localhost:3000/callback   (Bruno's OAuth2 callback)

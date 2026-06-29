@@ -7,11 +7,7 @@ meta {
 patch {
   url: {{baseUrl}}/v1/admin/apps/{{appId}}
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{adminToken}}
+  auth: inherit
 }
 
 body:json {
