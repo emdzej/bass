@@ -4,22 +4,38 @@ Open this directory in [Bruno](https://www.usebruno.com/) (`File → Open Collec
 
 ## Environments
 
-Switch via the env dropdown at the top right.
+Switch via the env dropdown at the top right. Three are shipped:
 
-- **`local`** — defaults pointing at `http://localhost:8080` (the docker-compose
-  stack with `BASS_NO_AUTH=true`). Admin endpoints accept any request — no real
-  token round-trip happens.
-- **`solvely.bru.example`** / **`self-hosted.bru.example`** — copy to
-  `solvely.bru` / `self-hosted.bru` (gitignored) and fill in `oidcClientSecret`.
-  These envs wire OAuth2 against a real Keycloak / Authentik / etc.
+- **`local`** — `http://localhost:8080`, no OIDC (the docker-compose stack with
+  `BASS_NO_AUTH=true`).
+- **`solvely`** — `https://bass.solvely.pl`, OIDC against
+  `https://auth.solvely.pl/realms/solvely`.
+- **`self-hosted`** — generic template; edit `baseUrl` + OIDC URLs for your
+  own deployment.
 
-## Authentication
+All three commit only the URLs and client id. Secrets — `~oidcClientSecret`,
+`~syncToken`, `~refreshToken` — use Bruno's secret-var prefix (`~`): you enter
+their values once via Bruno's env editor UI, and Bruno stores them in a
+local-only file that's never committed.
 
-### Admin endpoints — automatic OAuth2
+## Folder-level auth
 
-The `admin/` folder is configured with **folder-level OAuth2** in
-`admin/folder.bru`. Requests in that folder inherit auth via Bruno's
-authorization-code flow:
+Each endpoint folder has a `folder.bru` declaring its default auth mode;
+every request inside uses `auth: inherit`. Refresh-token endpoint is the
+single exception — it overrides to `auth: none` (the refresh token lives
+in the request body, not in a header).
+
+| Folder | Auth | What it uses |
+|---|---|---|
+| `discovery/` | none | Public — discovery doc + healthz |
+| `pairing/` | none | Public — pair initiation |
+| `admin/` | **oauth2** (authorization_code + PKCE) | Bruno auto-fetches a token from the IdP |
+| `sync/` | bearer `{{syncToken}}` | Opaque bass sync token |
+| `devices/` | bearer `{{syncToken}}` | Opaque bass sync token |
+
+## How OAuth2 works for the admin folder
+
+Bruno drives the authorization-code flow against the configured IdP:
 
 1. First request in the folder → Bruno opens a browser popup pointed at
    `{{oidcAuthorizationUrl}}`.
@@ -37,16 +53,16 @@ Keycloak supports multiple values per client.
 requested. In Keycloak this means defining a Client Scope `bass.admin`
 and attaching it (as default or optional) to the `bass` client.
 
-**Local dev (`BASS_NO_AUTH=true`):** OAuth2 is unnecessary — the admin
-endpoints accept anything. Either ignore the auth failures (Bruno will
-still send the request), or flip each request's `auth: inherit` to
-`auth: none` for the local env.
+**Local dev (`BASS_NO_AUTH=true`):** the admin endpoints accept anything;
+the OAuth2 round-trip is unnecessary. Either ignore the auth failure
+(Bruno still sends the request without a token) or temporarily set the
+admin requests to `auth: none`.
 
-### Sync / device endpoints — manual
+## Getting a sync token
 
-The `sync/`, `devices/`, and `pairing/` folders use the opaque sync token
-minted by bass itself (not by your IdP). Bruno can't automate this — the
-token is the output of the bass pairing flow.
+The `sync/` and `devices/` folders use the opaque bass sync token, which
+isn't an OIDC token and isn't issued by your IdP. Bruno can't fetch it
+for you — it's the output of bass's pairing flow.
 
 To obtain one:
 1. Open the demo app at `http://localhost:5173` (or your deployed equivalent).

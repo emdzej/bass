@@ -7,9 +7,5 @@ meta {
 get {
   url: {{baseUrl}}/v1/devices
   body: none
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{syncToken}}
+  auth: inherit
 }

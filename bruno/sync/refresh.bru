@@ -10,6 +10,9 @@ post {
   auth: none
 }
 
+# Overrides folder default — refresh uses the refresh_token in the body,
+# not an Authorization header.
+
 body:json {
   {
     "refresh_token": "{{refreshToken}}"

@@ -7,11 +7,7 @@ meta {
 post {
   url: {{baseUrl}}/v1/sync
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{syncToken}}
+  auth: inherit
 }
 
 body:json {

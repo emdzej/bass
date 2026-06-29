@@ -2,20 +2,21 @@ vars {
   baseUrl: http://localhost:8080
   wsBaseUrl: ws://localhost:8080
   appId: bass-demo
-  ~adminToken:
-  syncToken:
-  refreshToken:
-  deviceId:
-  ~oidcAuthorizationUrl:
-  ~oidcTokenUrl:
-  ~oidcClientId: bass
-  ~oidcClientSecret:
-  ~oidcCallbackUrl: http://localhost:3000/callback
-  ~oidcAdminScope: openid bass.admin
-  ~oidcUserScope: openid bass.sync
-}
 
-# Local docker-compose stack: bass runs with BASS_NO_AUTH=true, so the admin
-# endpoints accept requests without a real token. The OAuth2 vars above
-# (prefixed with `~`, Bruno-disabled by default) are placeholders — enable
-# them only if you also run a real IdP locally.
+  # OIDC — unused in the default docker-compose stack (BASS_NO_AUTH=true).
+  # If you also run a real IdP locally, fill these in.
+  oidcAuthorizationUrl:
+  oidcTokenUrl:
+  oidcClientId: bass
+  ~oidcClientSecret:
+  oidcCallbackUrl: http://localhost:3000/callback
+  oidcAdminScope: openid bass.admin
+  oidcUserScope: openid bass.sync
+
+  # Opaque bass sync tokens (NOT OIDC). Obtain by completing the pairing
+  # flow in the demo at http://localhost:5173. With BASS_NO_AUTH=true the
+  # flow short-circuits and returns a token in the redirect URL.
+  ~syncToken:
+  ~refreshToken:
+  deviceId:
+}

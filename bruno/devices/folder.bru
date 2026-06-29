@@ -1,0 +1,17 @@
+meta {
+  name: devices
+  seq: 4
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{syncToken}}
+}
+
+docs {
+  User-facing device management. Same bass sync token as the `sync/`
+  folder — both endpoints belong to the authenticated device.
+}

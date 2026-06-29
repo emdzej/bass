@@ -1,0 +1,18 @@
+meta {
+  name: sync
+  seq: 3
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{syncToken}}
+}
+
+docs {
+  Data-plane endpoints. Authenticated with the opaque bass sync token
+  (NOT an OIDC token). Obtain a token by completing the pairing flow
+  in the demo app, then paste it into the env's `syncToken` var.
+}
