@@ -16,12 +16,11 @@ import (
 
 // API wires the /v1/pair/* endpoints.
 type API struct {
-	Apps         *apps.Store
-	Devices      *devices.Store
-	Verifier     *auth.Verifier
-	Cache        *Cache
-	ClientID     string
-	ClientSecret string
+	Apps     *apps.Store
+	Devices  *devices.Store
+	Verifier *auth.Verifier
+	Cache    *Cache
+	ClientID string
 	// CallbackURL is the absolute URL clients are sent back to after the IdP
 	// authorize step — i.e. this service's own /v1/pair/callback endpoint.
 	CallbackURL string
@@ -92,7 +91,7 @@ func (a *API) start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg := a.Verifier.OAuth2Config(a.ClientID, a.ClientSecret, a.CallbackURL,
+	cfg := a.Verifier.OAuth2Config(a.ClientID, a.CallbackURL,
 		[]string{"openid", "profile", "email", auth.ScopeSync})
 	authURL := cfg.AuthCodeURL(stateTok,
 		oauth2.AccessTypeOnline,
@@ -121,7 +120,7 @@ func (a *API) callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg := a.Verifier.OAuth2Config(a.ClientID, a.ClientSecret, a.CallbackURL,
+	cfg := a.Verifier.OAuth2Config(a.ClientID, a.CallbackURL,
 		[]string{"openid", "profile", "email", auth.ScopeSync})
 	tok, err := cfg.Exchange(r.Context(), code,
 		oauth2.SetAuthURLParam("code_verifier", st.PKCEVerifier))

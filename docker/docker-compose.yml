@@ -11,7 +11,8 @@ services:
       BASS_ALLOWED_ORIGINS: "localhost:5173,localhost:4173"
       # The demo runs without OIDC so the focus stays on the sync mechanism.
       # For a real deployment, drop --no-auth and set BASS_OIDC_ISSUER /
-      # BASS_OIDC_AUDIENCE / BASS_OIDC_CLIENT_ID / BASS_OIDC_CLIENT_SECRET.
+      # BASS_OIDC_AUDIENCE / BASS_OIDC_CLIENT_ID. bass is a public client
+      # (PKCE-based); no client secret is required.
       BASS_NO_AUTH: "true"
     volumes:
       - bass-data:/data

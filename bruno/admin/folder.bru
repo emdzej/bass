@@ -9,29 +9,31 @@ auth {
 
 auth:oauth2 {
   grant_type: authorization_code
+  callback_url: {{oidcCallbackUrl}}
   authorization_url: {{oidcAuthorizationUrl}}
   access_token_url: {{oidcTokenUrl}}
-  callback_url: {{oidcCallbackUrl}}
+  refresh_token_url:
   client_id: {{oidcClientId}}
-  client_secret: {{oidcClientSecret}}
   scope: {{oidcAdminScope}}
   state: bass-admin
   pkce: true
-  credentials_placement: basic_auth_header
+  credentials_placement: body
+  credentials_id: bass-admin
+  token_source: access_token
   token_placement: header
   token_header_prefix: Bearer
   auto_fetch_token: true
-  auto_refresh_token: true
+  auto_refresh_token: false
 }
 
 docs {
-  All requests in this folder authenticate via OAuth2 authorization-code
-  flow against the IdP configured in the current environment. Bruno opens
-  a browser popup the first time, caches the access token, and refreshes
-  automatically.
+  Folder-level OAuth2 with PKCE — bass is a public client, no client
+  secret involved. First request in the folder opens a browser to the
+  IdP; subsequent requests use the cached access token.
 
-  The IdP must include the `bass.admin` scope on tokens for the configured
-  client. For local dev with `BASS_NO_AUTH=true`, the auth round-trip is
-  unnecessary — switch requests to `auth: none` if the OIDC vars aren't
-  set.
+  The IdP must (a) treat the configured `oidcClientId` as a public
+  client with PKCE required and (b) include the `bass.admin` scope on
+  the issued token. For local dev with `BASS_NO_AUTH=true` the auth
+  round-trip is unnecessary — switch individual requests to
+  `auth: none` if the OIDC vars aren't set.
 }

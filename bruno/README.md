@@ -13,10 +13,11 @@ Switch via the env dropdown at the top right. Three are shipped:
 - **`self-hosted`** — generic template; edit `baseUrl` + OIDC URLs for your
   own deployment.
 
-All three commit only the URLs and client id. Secrets — `~oidcClientSecret`,
-`~syncToken`, `~refreshToken` — use Bruno's secret-var prefix (`~`): you enter
-their values once via Bruno's env editor UI, and Bruno stores them in a
-local-only file that's never committed.
+All three commit only the URLs and the public client id — bass is a
+**public OAuth client** (no shared secret; PKCE binds the exchange to the
+flow). The only `vars:secret` entries are `syncToken` and `refreshToken`,
+which are bass-minted opaque tokens (not OIDC), and you enter their
+values once via Bruno's env editor UI.
 
 ## Folder-level auth
 
@@ -35,23 +36,24 @@ in the request body, not in a header).
 
 ## How OAuth2 works for the admin folder
 
-Bruno drives the authorization-code flow against the configured IdP:
+Bruno drives the authorization-code + PKCE flow against the configured IdP:
 
 1. First request in the folder → Bruno opens a browser popup pointed at
-   `{{oidcAuthorizationUrl}}`.
-2. You log in to your IdP. The popup redirects to `{{oidcCallbackUrl}}`
-   (default `http://localhost:3000/callback`), which Bruno intercepts.
-3. Bruno exchanges the code for an access token, caches it, and refreshes
-   it automatically on subsequent runs.
+   `{{oidcAuthorizationUrl}}` with a PKCE challenge.
+2. You log in to your IdP. The popup redirects to `{{oidcCallbackUrl}}`,
+   which Bruno intercepts.
+3. Bruno exchanges the code (with the PKCE verifier — no client secret)
+   for an access token and caches it for subsequent requests.
 
-**IdP setup:** the `bass` OAuth2 client in your realm must have
-`http://localhost:3000/callback` registered as a Valid Redirect URI
-**in addition to** bass's own `https://<bass-host>/v1/pair/callback`.
-Keycloak supports multiple values per client.
-
-**Scopes:** the client must be configured to issue `bass.admin` when
-requested. In Keycloak this means defining a Client Scope `bass.admin`
-and attaching it (as default or optional) to the `bass` client.
+**IdP setup** (Keycloak example):
+- The `bass` client must be **public** — *Client authentication: OFF* in
+  the Capability config tab. (PKCE replaces the shared secret.)
+- Advanced → *PKCE Code Challenge Method*: `S256`.
+- `oidcCallbackUrl` (e.g. `http://localhost:3000/callback`) must be in
+  the Valid Redirect URIs list, alongside bass's own
+  `https://<bass-host>/v1/pair/callback`.
+- A `bass.admin` Client Scope must exist and be attached (as default or
+  optional) so the issued token includes it.
 
 **Local dev (`BASS_NO_AUTH=true`):** the admin endpoints accept anything;
 the OAuth2 round-trip is unnecessary. Either ignore the auth failure
@@ -77,15 +79,10 @@ To obtain one:
 # Discovery
 curl -s $BASS_URL/.well-known/bass-config
 
-# Get an admin token from Keycloak (authorization_code is interactive — for
-# scripts, use a Keycloak service account with client_credentials)
-ADMIN_TOKEN=$(curl -s -X POST \
-  https://auth.example.com/realms/main/protocol/openid-connect/token \
-  -d grant_type=client_credentials \
-  -d client_id=bass \
-  -d client_secret=$BASS_CLIENT_SECRET \
-  -d scope='openid bass.admin' \
-  | python3 -c 'import sys,json;print(json.load(sys.stdin)["access_token"])')
+# For scripts you can't drive the authorization_code+PKCE flow from curl;
+# either grab an access token from your browser session, or configure a
+# separate service-account client in the IdP and use client_credentials
+# with that.
 
 # Register an app
 curl -X POST $BASS_URL/v1/admin/apps \

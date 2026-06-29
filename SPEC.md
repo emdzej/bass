@@ -744,8 +744,7 @@ Env-first, CLI-flag override. Same pattern as swsrs:
 | `BASS_DB_PATH` | `bass.db` | SQLite path |
 | `BASS_OIDC_ISSUER` | (required) | IdP issuer URL |
 | `BASS_OIDC_AUDIENCE` | (required) | JWT audience |
-| `BASS_OIDC_CLIENT_ID` | (required) | OAuth client used for pairing code exchange |
-| `BASS_OIDC_CLIENT_SECRET` | (required) | OAuth client secret |
+| `BASS_OIDC_CLIENT_ID` | (required) | OAuth public client used for pairing code exchange (PKCE; no shared secret) |
 | `BASS_TOKEN_TTL` | `24h` | Sync token TTL |
 | `BASS_REFRESH_TTL` | `30d` | Refresh token TTL |
 | `BASS_MAX_VALUE_BYTES` | `65536` | Per-item limit |

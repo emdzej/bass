@@ -223,8 +223,7 @@ The service takes config from env vars (or matching `--flag`s):
 | `BASS_PUBLIC_WS_BASE_URL` | derived from base URL | Public WS URL |
 | `BASS_OIDC_ISSUER` | *(required)* | OIDC issuer URL |
 | `BASS_OIDC_AUDIENCE` | *(required)* | Expected JWT audience |
-| `BASS_OIDC_CLIENT_ID` | *(required)* | OAuth client id used for the pairing code exchange |
-| `BASS_OIDC_CLIENT_SECRET` | *(required)* | OAuth client secret |
+| `BASS_OIDC_CLIENT_ID` | *(required)* | OAuth public client id used for the pairing code exchange (PKCE; no shared secret) |
 | `BASS_TOKEN_TTL` | `24h` | Sync token lifetime |
 | `BASS_REFRESH_TTL` | `720h` (30d) | Refresh token lifetime |
 | `BASS_MAX_VALUE_BYTES` | `65536` | Max bytes per item |

@@ -100,15 +100,14 @@ func (v *Verifier) Endpoints() IdPEndpoints  { return v.endpoints }
 func (v *Verifier) Provider() *oidc.Provider { return v.provider }
 
 // OAuth2Config returns an oauth2.Config suitable for the authorization code
-// exchange during pairing. The caller provides the redirect URI and client
-// credentials.
-func (v *Verifier) OAuth2Config(clientID, clientSecret, redirectURI string, scopes []string) *oauth2.Config {
+// exchange during pairing. bass uses PKCE for the exchange and treats
+// itself as a public client — no client_secret is needed or sent.
+func (v *Verifier) OAuth2Config(clientID, redirectURI string, scopes []string) *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		Endpoint:     v.provider.Endpoint(),
-		RedirectURL:  redirectURI,
-		Scopes:       scopes,
+		ClientID:    clientID,
+		Endpoint:    v.provider.Endpoint(),
+		RedirectURL: redirectURI,
+		Scopes:      scopes,
 	}
 }
 

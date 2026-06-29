@@ -5,14 +5,12 @@ vars {
   oidcAuthorizationUrl: https://auth.solvely.pl/realms/solvely/protocol/openid-connect/auth
   oidcTokenUrl: https://auth.solvely.pl/realms/solvely/protocol/openid-connect/token
   oidcClientId: bass
-  oidcCallbackUrl: http://localhost:3000/callback
+  oidcCallbackUrl: http://localhost:3000
   oidcAdminScope: openid bass.admin
   oidcUserScope: openid bass.sync
-  deviceId:
+  deviceId: 
 }
-
 vars:secret [
-  oidcClientSecret,
   syncToken,
   refreshToken
 ]

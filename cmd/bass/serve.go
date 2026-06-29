@@ -24,43 +24,41 @@ import (
 )
 
 type serveConfig struct {
-	Addr             string
-	PublicBaseURL    string
-	PublicWSBaseURL  string
-	DBPath           string
-	OIDCIssuer       string
-	OIDCAudience     string
-	OIDCClientID     string
-	OIDCClientSecret string
-	TokenTTL         time.Duration
-	RefreshTTL       time.Duration
-	StateTTL         time.Duration
-	MaxValueBytes    int
-	MaxBatchItems    int
-	AllowedOrigins   []string
-	TLSCert          string
-	TLSKey           string
-	NoAuth           bool
+	Addr            string
+	PublicBaseURL   string
+	PublicWSBaseURL string
+	DBPath          string
+	OIDCIssuer      string
+	OIDCAudience    string
+	OIDCClientID    string
+	TokenTTL        time.Duration
+	RefreshTTL      time.Duration
+	StateTTL        time.Duration
+	MaxValueBytes   int
+	MaxBatchItems   int
+	AllowedOrigins  []string
+	TLSCert         string
+	TLSKey          string
+	NoAuth          bool
 }
 
 func runServe(args []string) int {
 	cfg := serveConfig{
-		Addr:             envOr("BASS_ADDR", ":8080"),
-		PublicBaseURL:    envOr("BASS_PUBLIC_BASE_URL", "http://localhost:8080"),
-		PublicWSBaseURL:  os.Getenv("BASS_PUBLIC_WS_BASE_URL"),
-		DBPath:           envOr("BASS_DB_PATH", "bass.db"),
-		OIDCIssuer:       os.Getenv("BASS_OIDC_ISSUER"),
-		OIDCAudience:     os.Getenv("BASS_OIDC_AUDIENCE"),
-		OIDCClientID:     os.Getenv("BASS_OIDC_CLIENT_ID"),
-		OIDCClientSecret: os.Getenv("BASS_OIDC_CLIENT_SECRET"),
-		TokenTTL:         envDuration("BASS_TOKEN_TTL", 24*time.Hour),
-		RefreshTTL:       envDuration("BASS_REFRESH_TTL", 30*24*time.Hour),
-		StateTTL:         envDuration("BASS_PAIR_STATE_TTL", 5*time.Minute),
-		MaxValueBytes:    envInt("BASS_MAX_VALUE_BYTES", 65536),
-		MaxBatchItems:    envInt("BASS_MAX_BATCH_ITEMS", 1024),
-		TLSCert:          os.Getenv("BASS_TLS_CERT"),
-		TLSKey:           os.Getenv("BASS_TLS_KEY"),
-		NoAuth:           envBool("BASS_NO_AUTH", false),
+		Addr:            envOr("BASS_ADDR", ":8080"),
+		PublicBaseURL:   envOr("BASS_PUBLIC_BASE_URL", "http://localhost:8080"),
+		PublicWSBaseURL: os.Getenv("BASS_PUBLIC_WS_BASE_URL"),
+		DBPath:          envOr("BASS_DB_PATH", "bass.db"),
+		OIDCIssuer:      os.Getenv("BASS_OIDC_ISSUER"),
+		OIDCAudience:    os.Getenv("BASS_OIDC_AUDIENCE"),
+		OIDCClientID:    os.Getenv("BASS_OIDC_CLIENT_ID"),
+		TokenTTL:        envDuration("BASS_TOKEN_TTL", 24*time.Hour),
+		RefreshTTL:      envDuration("BASS_REFRESH_TTL", 30*24*time.Hour),
+		StateTTL:        envDuration("BASS_PAIR_STATE_TTL", 5*time.Minute),
+		MaxValueBytes:   envInt("BASS_MAX_VALUE_BYTES", 65536),
+		MaxBatchItems:   envInt("BASS_MAX_BATCH_ITEMS", 1024),
+		TLSCert:         os.Getenv("BASS_TLS_CERT"),
+		TLSKey:          os.Getenv("BASS_TLS_KEY"),
+		NoAuth:          envBool("BASS_NO_AUTH", false),
 	}
 	if v := os.Getenv("BASS_ALLOWED_ORIGINS"); v != "" {
 		cfg.AllowedOrigins = splitCSV(v)
@@ -73,8 +71,7 @@ func runServe(args []string) int {
 	fs.StringVar(&cfg.DBPath, "db", cfg.DBPath, "SQLite database path")
 	fs.StringVar(&cfg.OIDCIssuer, "oidc-issuer", cfg.OIDCIssuer, "OIDC issuer URL")
 	fs.StringVar(&cfg.OIDCAudience, "oidc-audience", cfg.OIDCAudience, "expected JWT audience")
-	fs.StringVar(&cfg.OIDCClientID, "oidc-client-id", cfg.OIDCClientID, "OAuth client id for pairing")
-	fs.StringVar(&cfg.OIDCClientSecret, "oidc-client-secret", cfg.OIDCClientSecret, "OAuth client secret")
+	fs.StringVar(&cfg.OIDCClientID, "oidc-client-id", cfg.OIDCClientID, "OAuth public client id for pairing (PKCE; no secret required)")
 	fs.DurationVar(&cfg.TokenTTL, "token-ttl", cfg.TokenTTL, "sync token lifetime")
 	fs.DurationVar(&cfg.RefreshTTL, "refresh-ttl", cfg.RefreshTTL, "refresh token lifetime")
 	fs.StringVar(&cfg.TLSCert, "tls-cert", cfg.TLSCert, "PEM cert path (set with --tls-key for native TLS)")
@@ -134,13 +131,12 @@ func runServe(args []string) int {
 	hub := changes.NewHub()
 
 	pairAPI := &pairing.API{
-		Apps:         appsStore,
-		Devices:      devStore,
-		Verifier:     verifier,
-		Cache:        pairCache,
-		ClientID:     cfg.OIDCClientID,
-		ClientSecret: cfg.OIDCClientSecret,
-		CallbackURL:  cfg.PublicBaseURL + "/v1/pair/callback",
+		Apps:        appsStore,
+		Devices:     devStore,
+		Verifier:    verifier,
+		Cache:       pairCache,
+		ClientID:    cfg.OIDCClientID,
+		CallbackURL: cfg.PublicBaseURL + "/v1/pair/callback",
 	}
 	syncAPI := &syncpkg.API{
 		Store:         syncStore,
