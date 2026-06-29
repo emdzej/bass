@@ -1,6 +1,6 @@
 {
   "name": "@emdzej/bass-svelte",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Svelte stores + Svelte 5 runes wrappers over @emdzej/bass-client",
   "license": "MIT",
   "type": "module",

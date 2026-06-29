@@ -12,8 +12,9 @@ auth:oauth2 {
   callback_url: {{oidcCallbackUrl}}
   authorization_url: {{oidcAuthorizationUrl}}
   access_token_url: {{oidcTokenUrl}}
-  refresh_token_url:
+  refresh_token_url: 
   client_id: {{oidcClientId}}
+  client_secret: 
   scope: {{oidcAdminScope}}
   state: bass-admin
   pkce: true
@@ -30,7 +31,7 @@ docs {
   Folder-level OAuth2 with PKCE — bass is a public client, no client
   secret involved. First request in the folder opens a browser to the
   IdP; subsequent requests use the cached access token.
-
+  
   The IdP must (a) treat the configured `oidcClientId` as a public
   client with PKCE required and (b) include the `bass.admin` scope on
   the issued token. For local dev with `BASS_NO_AUTH=true` the auth
