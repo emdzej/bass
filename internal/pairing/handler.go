@@ -139,6 +139,16 @@ func (a *API) callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Optional but recommended: require bass.sync scope on the user's token.
+	// Per OAuth2/OIDC the `scope` claim lives on the access token, not the
+	// ID token — Keycloak (and others) follow this strictly, so the ID
+	// token's claims won't contain it. Fall back to the access token before
+	// rejecting. No signature check needed: we got it from the token
+	// endpoint over TLS in the exchange above.
+	if !claims.HasScope(auth.ScopeSync) {
+		if extra := auth.ExtractUnverifiedScopes(tok.AccessToken); len(extra) > 0 {
+			claims.Scopes = append(claims.Scopes, extra...)
+		}
+	}
 	if !claims.HasScope(auth.ScopeSync) {
 		httpx.Error(w, http.StatusForbidden, "missing_scope",
 			"user token must include scope "+auth.ScopeSync)

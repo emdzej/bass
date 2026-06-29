@@ -5,6 +5,8 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -165,6 +167,37 @@ func (c *Claims) HasScope(s string) bool {
 		}
 	}
 	return false
+}
+
+// ExtractUnverifiedScopes parses scopes from a raw JWT's payload without
+// verifying its signature. Per OAuth2/OIDC, the `scope` claim lives on the
+// access token, not the ID token — but bass primarily verifies the ID
+// token during pairing. Callers use this to look at the access token's
+// claims as a fallback when the ID token doesn't carry the scope.
+//
+// No signature check is needed: the token came straight from the IdP's
+// token endpoint over TLS, and we're only inspecting a claim the IdP
+// already vouched for. If the access token is opaque (not a JWT) or the
+// payload is unparseable, this returns nil.
+func ExtractUnverifiedScopes(rawJWT string) []string {
+	parts := strings.Split(rawJWT, ".")
+	if len(parts) != 3 {
+		return nil
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		// Tolerate the padded variant — RFC 7519 mandates unpadded but
+		// some IdPs ship padded blobs.
+		payload, err = base64.URLEncoding.DecodeString(parts[1])
+		if err != nil {
+			return nil
+		}
+	}
+	var raw map[string]any
+	if err := json.Unmarshal(payload, &raw); err != nil {
+		return nil
+	}
+	return extractScopes(raw)
 }
 
 // Middleware verifies the Authorization bearer and ensures the listed scope
