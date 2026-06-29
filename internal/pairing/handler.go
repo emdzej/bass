@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
 	"time"
 
@@ -138,18 +139,12 @@ func (a *API) callback(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, http.StatusBadGateway, "invalid_id_token", err.Error())
 		return
 	}
-	// Optional but recommended: require bass.sync scope on the user's token.
-	// Per OAuth2/OIDC the `scope` claim lives on the access token, not the
-	// ID token — Keycloak (and others) follow this strictly, so the ID
-	// token's claims won't contain it. Fall back to the access token before
-	// rejecting. No signature check needed: we got it from the token
-	// endpoint over TLS in the exchange above.
-	if !claims.HasScope(auth.ScopeSync) {
-		if extra := auth.ExtractUnverifiedScopes(tok.AccessToken); len(extra) > 0 {
-			claims.Scopes = append(claims.Scopes, extra...)
-		}
-	}
-	if !claims.HasScope(auth.ScopeSync) {
+	// Scopes live on the access token per OAuth2/OIDC — the ID token
+	// carries identity, not authorization. Inspect the access token
+	// directly; no signature verification needed since we got it from
+	// the TLS-protected token endpoint in the exchange above.
+	scopes := auth.ExtractUnverifiedScopes(tok.AccessToken)
+	if !slices.Contains(scopes, auth.ScopeSync) {
 		httpx.Error(w, http.StatusForbidden, "missing_scope",
 			"user token must include scope "+auth.ScopeSync)
 		return

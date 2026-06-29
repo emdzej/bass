@@ -16,13 +16,14 @@ and the `ghcr.io/emdzej/bass` container image.
 ### Fixed
 
 - **Pairing rejected `bass.sync` scope from spec-compliant IdPs.** The
-  callback handler only inspected the ID token's claims when enforcing
-  `bass.sync`, but per OAuth2/OIDC the `scope` claim is carried on the
-  access token. IdPs that follow the spec strictly (Keycloak, Auth0,
-  …) returned `missing_scope` even when the user had been granted
-  `bass.sync`. The handler now also reads scopes from the access token
-  (unverified — no signature check, since it came straight from the
-  TLS-protected token endpoint) before rejecting.
+  callback handler enforced `bass.sync` against the ID token's claims,
+  but per OAuth2/OIDC the `scope` claim is carried on the access
+  token; the ID token carries identity. IdPs that follow the spec
+  strictly (Keycloak, Auth0, …) returned `missing_scope` even when
+  the user had been granted `bass.sync`. The handler now reads scopes
+  from the access token directly. No signature check needed — the
+  access token came from the TLS-protected token endpoint in the same
+  exchange.
 
 ---
 
