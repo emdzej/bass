@@ -2,23 +2,17 @@ vars {
   baseUrl: https://bass.example.com
   wsBaseUrl: wss://bass.example.com
   appId: my-app
-
   oidcAuthorizationUrl: https://auth.example.com/realms/my-realm/protocol/openid-connect/auth
   oidcTokenUrl: https://auth.example.com/realms/my-realm/protocol/openid-connect/token
   oidcClientId: bass
-  ~oidcClientSecret:
   oidcCallbackUrl: http://localhost:3000/callback
   oidcAdminScope: openid bass.admin
   oidcUserScope: openid bass.sync
-
-  ~syncToken:
-  ~refreshToken:
   deviceId:
 }
 
-# Generic template — duplicate or edit in place for your own deployment.
-# Register `oidcCallbackUrl` (http://localhost:3000/callback) as a Valid
-# Redirect URI on the `bass` client in your IdP.
-#
-# `~`-prefixed vars are Bruno secrets — set their VALUES in Bruno's env
-# editor UI; they're stored in a local-only file, not the .bru file.
+vars:secret [
+  oidcClientSecret,
+  syncToken,
+  refreshToken
+]
